@@ -67,3 +67,33 @@ helm install stable/prometheus-to-sd \
 ```shell
 kubectl apply -f prom-to-sd-kube-state-metrics
 ```
+
+## Debug
+
+```console
+$ kubectl run my-shell -n monitoring --rm -i --tty --image ubuntu -- bash
+If you don't see a command prompt, try pressing enter.
+root@my-shell-796b6f7d5b-6qxmc:/# apt-get update -qy && apt-get install dnsutils curl -qy
+root@my-shell-796b6f7d5b-6qxmc:/# curl kube-state-metrics:8080
+<html>
+             <head><title>Kube Metrics Server</title></head>
+             <body>
+             <h1>Kube Metrics</h1>
+                         <ul>
+             <li><a href='/metrics'>metrics</a></li>
+             <li><a href='/healthz'>healthz</a></li>
+                         </ul>
+             </body>
+             </html>
+curl http://kube-state-metrics.monitoring.svc.cluster.local:8080
+<html>
+             <head><title>Kube Metrics Server</title></head>
+             <body>
+             <h1>Kube Metrics</h1>
+                         <ul>
+             <li><a href='/metrics'>metrics</a></li>
+             <li><a href='/healthz'>healthz</a></li>
+                         </ul>
+             </body>
+             </html>
+```
