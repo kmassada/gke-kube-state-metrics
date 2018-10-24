@@ -1,6 +1,6 @@
 # GKE Kube State Metrics
 
-Create namesapce and grant permissions to the `default` user on the `monitoring` namespace. 
+Create namesapce and grant permissions to the `default` user on the `monitoring` namespace.
 
 ```shell
 kubectl apply -f rbac-setup.yaml --as=admin --as-group=system:masters
@@ -32,26 +32,34 @@ $cat perms.txt
 ## Tiller Method
 
 ```shell
+# Bootstrap
+kubectl create ns monitoring
+
+# Install
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
+
 # Allow tiller to deploy
-kubectl create serviceaccount tiller --namespace=kube-system
-kubectl create clusterrolebinding tiller --clusterrole=cluster-admin --user=tiller
+kubectl create serviceaccount tiller --namespace=monitoring
+kubectl create rolebinding tiller --clusterrole=admin --serviceaccount=monitoring:tiller --namespace=monitoring
 
 # If Tiller is not installed:
-helm init  --service-account tiller
-```
+ helm init  --service-account tiller --tiller-namespace monitoring --debug
+ ```
 
 
 ```shell
 helm install stable/kube-state-metrics \
     --namespace monitoring \
-    --name kube-state-metrics
+    --name kube-state-metrics \
+    --tiller-namespace monitoring
 
 ENDPOINT=http://kube-state-metrics.monitoring.svc.cluster.local:8080
 
 helm install stable/prometheus-to-sd \
     --namespace monitoring \
     --set metricsSources.kube-state-metrics=$ENDPOINT \
-    --name prometheus-to-sd
+    --name prometheus-to-sd \
+    --tiller-namespace monitoring
 ```
 
 ## Deployment
