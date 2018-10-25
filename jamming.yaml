@@ -1,0 +1,65 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: kube-state-metrics
+  name: kube-state-metrics
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-state-metrics
+  template:
+    metadata:
+      labels:
+        app: kube-state-metrics
+    spec:
+      containers:
+      - command:
+        - /monitor
+        - --stackdriver-prefix=custom.googleapis.com
+        - --source=kube-state-metrics:http://localhost:8080
+        image: gcr.io/google-containers/prometheus-to-sd:v0.2.2
+        imagePullPolicy: IfNotPresent
+        name: prometheus-to-sd
+        ports:
+        - containerPort: 6060
+          name: profiler
+          protocol: TCP
+        resources: {}
+      - args:
+        - --collectors=cronjobs
+        - --collectors=daemonsets
+        - --collectors=deployments
+        - --collectors=endpoints
+        - --collectors=horizontalpodautoscalers
+        - --collectors=jobs
+        - --collectors=limitranges
+        - --collectors=namespaces
+        - --collectors=nodes
+        - --collectors=persistentvolumeclaims
+        - --collectors=persistentvolumes
+        - --collectors=pods
+        - --collectors=replicasets
+        - --collectors=replicationcontrollers
+        - --collectors=resourcequotas
+        - --collectors=services
+        - --collectors=statefulsets
+        image: quay.io/coreos/kube-state-metrics:v1.4.0
+        imagePullPolicy: IfNotPresent
+        name: kube-state-metrics
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources: {}

@@ -65,7 +65,7 @@ helm install stable/prometheus-to-sd \
 ## Deployment
 
 ```shell
-kubectl apply -f prom-to-sd-kube-state-metrics
+kubectl apply -f jamming.yaml
 ```
 
 ## Debug
