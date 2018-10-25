@@ -97,3 +97,18 @@ curl http://kube-state-metrics.monitoring.svc.cluster.local:8080
              </body>
              </html>
 ```
+
+```console
+$ kubectl apply -f https://gist.githubusercontent.com/kmassada/ad766d49e2616d9f8d1cc44285bcab56/raw/7d7f410e3465f2f255eb37bee59dfe78fd5c61a8/fanout-ingress.yml
+deployment.apps "nginx-deployment" created
+deployment.apps "httpd-deployment" created
+service "nginx-service" created
+service "httpd-service" created
+ingress.extensions "fanout-ingress-gce" created
+$ kubectl scale --replicas=6 deployment.apps "httpd-deployment"
+deployment.apps "httpd-deployment" scaled
+$ kubectl scale --replicas=2 deployment.apps "nginx-deployment"
+deployment.apps "nginx-deployment" scaled
+```
+
+![monitor](monitor-deployments.png)
